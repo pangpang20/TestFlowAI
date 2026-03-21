@@ -1,0 +1,98 @@
+1. 整体产品定位与核心价值
+
+一句话描述：像 Selenium IDE + Playwright Recorder + mabl/Testim 的AI自愈 + ChatGPT 智能判断的混合体，但全部用标准JSON存储，你自己完全可控、可二次开发。
+目标用户：产品经理、测试小白、创业团队（不需要写代码也能自动化回归测试）。
+核心闭环：
+录制你的真实点击/输入 → 保存为标准JSON测试流
+应用更新后 → 一键加载JSON → AI智能回放（自动加等待、断言、修复失效选择器）
+每功能点自动输出标准化测试报告（用例总数 / 通过 / 失败 / 截图 / 日志）
+
+
+2. 详细功能模块（已细化到可直接开发）
+（1）录制模块（浏览器插件形式，最推荐Chrome Extension）
+
+一键启动录制（浮动球或DevTools面板）
+自动捕获：
+点击、输入、选择、下拉、滚动、文件上传、鼠标hover
+页面跳转、弹窗、iframe切换
+可手动插入“等待步骤”（右键→“添加智能等待”）
+
+支持暂停/继续/删除上一步
+录制时实时预览JSON（侧边栏）
+额外功能：支持给步骤打标签（e.g. “登录流程”“支付功能点”），便于后续分组报告
+
+（2）标准JSON格式（核心！这是你最想要的“可读、可编辑、可复用”）
+JSON{
+  "testId": "login_v2_20260321",
+  "title": "用户登录完整流程",
+  "version": "1.2",
+  "appUrl": "https://yourapp.com",
+  "steps": [
+    {
+      "stepId": 1,
+      "type": "navigate",
+      "url": "https://yourapp.com/login",
+      "aiWait": { "type": "networkIdle", "timeout": 10000 }
+    },
+    {
+      "stepId": 2,
+      "type": "type",
+      "selector": "#username",
+      "value": "{{username}}",           // 支持变量占位
+      "description": "输入账号",
+      "assertAfter": { "type": "visible", "selector": "#username" }
+    },
+    {
+      "stepId": 3,
+      "type": "click",
+      "selectors": [                     // 多选择器，AI自愈用
+        "#login-btn",
+        "button:has-text('登录')",
+        "xpath=//button[@id='submit']"
+      ],
+      "aiCondition": "waitForResponse('/api/login')",  // 智能等待后端返回
+      "assert": { "type": "textContains", "text": "欢迎回来", "screenshot": true }
+    }
+  ],
+  "variables": { "username": "test@demo.com", "password": "123456" },
+  "tags": ["核心功能", "登录"],
+  "expectedReport": { "totalCases": 5, "group": "登录模块" }
+}
+这个格式基于 Chrome DevTools Recorder JSON + Puppeteer Replay 扩展而来，极其易读，你甚至可以用VSCode直接编辑。
+（3）回放模块（加载JSON后自动执行 + 判断能力）
+
+一键“加载JSON并回放”按钮
+AI智能增强（这是你最想要的“判断能力”）：
+自动为每个步骤插入智能等待（networkIdle + elementVisible + API响应）
+如果选择器失效 → 调用LLM（Grok/Claude）分析页面DOM，自动生成3个备用选择器并尝试
+支持“条件分支”：在JSON里加 "if": "elementExists('#error-toast')" → 执行失败路径并截图
+支持循环/数据驱动（一个JSON跑10组不同账号）
+
+回放模式：
+头模式（带界面，可暂停调试）
+无头模式（CI/CD加速）
+慢速模式（演示给领导看）
+
+
+（4）测试报告模块（每个功能点自动生成）
+回放结束后，一键生成HTML + PDF + JSON报告：
+Markdown【测试报告 - 登录模块 v20260321】
+用例总数：8
+✅ 通过：7
+❌ 失败：1（步骤3：按钮文字改成了“立即登录”）
+平均耗时：4.2s
+截图对比：before/after（高亮变化处）
+详细日志 + 失败步骤视频（可选录屏）
+导出Jira / 飞书 / 企业微信
+
+按“标签”分组：登录模块、支付模块、首页模块各自一份报告
+支持历史对比：上周通过率92% → 本周87%，自动高亮下降点
+
+3. 技术栈推荐（成熟、可快速落地）
+
+前端录制端：Chrome Extension（Manifest V3） + React + Tailwind
+回放引擎：Playwright（最强）或 Puppeteer Replay（完美支持Chrome Recorder JSON）
+AI层：Grok API / Claude 3.5 / 通义千问（prompt模板： “分析这个DOM，给我3个最稳定的选择器”）
+后端：Node.js + Express + MongoDB（存测试流JSON）
+报告：Puppeteer生成PDF + React渲染HTML + CTRF标准JSON报告
+部署：本地版（Electron桌面）+ 云版（Docker一键部署）
