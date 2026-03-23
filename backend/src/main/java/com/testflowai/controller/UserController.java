@@ -49,6 +49,7 @@ public class UserController {
         userInfo.put("id", user.getUserId());
         userInfo.put("username", user.getUsername());
         userInfo.put("email", user.getEmail());
+        userInfo.put("avatar", user.getAvatar());
         userInfo.put("role", "admin"); // TODO: 从角色表获取
         return Result.success(userInfo);
     }

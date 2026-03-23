@@ -43,7 +43,8 @@
             <span class="username">{{ userStore.username }}</span>
             <el-dropdown @command="handleCommand">
               <el-avatar :size="36" class="avatar">
-                {{ userStore.username.charAt(0).toUpperCase() }}
+                <img v-if="userStore.userInfo?.avatar" :src="userStore.userInfo.avatar" alt="avatar" style="width: 100%; height: 100%; object-fit: cover;" />
+                <span v-else>{{ userStore.username.charAt(0).toUpperCase() }}</span>
               </el-avatar>
               <template #dropdown>
                 <el-dropdown-menu>
@@ -176,8 +177,8 @@
       :close-on-click-modal="false"
     >
       <div class="avatar-upload">
-        <div class="avatar-preview" v-if="avatarPreview">
-          <img :src="avatarPreview" alt="头像预览" />
+        <div class="avatar-preview" v-if="avatarPreview || selectedFile">
+          <img :src="avatarPreview || selectedFile" alt="头像预览" />
         </div>
         <div class="avatar-preview" v-else>
           <el-icon><Plus /></el-icon>
@@ -193,6 +194,13 @@
       <template #footer>
         <el-button @click="avatarDialogVisible = false">取消</el-button>
         <el-button type="primary" @click="avatarInput?.click()">选择图片</el-button>
+        <el-button
+          type="success"
+          @click="confirmAvatarUpload"
+          :disabled="!selectedFile || uploading"
+        >
+          确认上传
+        </el-button>
       </template>
     </el-dialog>
 
@@ -261,12 +269,13 @@ const userStore = useUserStore()
 const avatarDialogVisible = ref(false)
 const uploading = ref(false)
 const avatarPreview = ref<string>('')
+const selectedFile = ref<File | null>(null)
 
 // 头像文件输入
 const avatarInput = ref<HTMLInputElement | null>(null)
 
-// 处理头像上传
-const handleAvatarChange = async (event: Event) => {
+// 处理头像选择（只预览，不上传）
+const handleAvatarChange = (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
   if (!file) return
@@ -283,17 +292,27 @@ const handleAvatarChange = async (event: Event) => {
     return
   }
 
+  // 保存选中的文件
+  selectedFile.value = file
+
   // 预览头像
   const reader = new FileReader()
   reader.onload = (e) => {
     avatarPreview.value = e.target?.result as string
   }
   reader.readAsDataURL(file)
+}
 
-  // 上传头像
+// 确认上传头像
+const confirmAvatarUpload = async () => {
+  if (!selectedFile.value) {
+    ElMessage.warning('请先选择图片')
+    return
+  }
+
   uploading.value = true
   try {
-    const res = await uploadAvatarApi(file)
+    const res = await uploadAvatarApi(selectedFile.value)
     const avatarUrl = res.data?.avatarUrl || res.avatarUrl
 
     // 更新用户信息中的头像
@@ -303,8 +322,10 @@ const handleAvatarChange = async (event: Event) => {
 
     ElMessage.success('头像上传成功')
     avatarDialogVisible.value = false
-  } catch (error) {
-    ElMessage.error('上传失败，请重试')
+    selectedFile.value = null
+    avatarPreview.value = ''
+  } catch (error: any) {
+    ElMessage.error(error.message || '上传失败，请重试')
   } finally {
     uploading.value = false
     // 清空 input，允许重复上传同一文件
@@ -318,6 +339,7 @@ const handleAvatarChange = async (event: Event) => {
 const showAvatarDialog = () => {
   avatarDialogVisible.value = true
   avatarPreview.value = ''
+  selectedFile.value = null
 }
 
 // 当前激活的菜单

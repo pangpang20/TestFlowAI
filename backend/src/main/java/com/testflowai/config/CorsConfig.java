@@ -1,7 +1,9 @@
 package com.testflowai.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
@@ -10,6 +12,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  */
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
+
+    @Value("${file.upload-dir:./uploads}")
+    private String uploadDir;
+
+    @Value("${file.access-url:/api/files}")
+    private String accessUrl;
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
@@ -30,5 +38,12 @@ public class CorsConfig implements WebMvcConfigurer {
             .allowCredentials(true)
             // 预检请求缓存时间
             .maxAge(3600);
+    }
+
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        // 映射本地上传目录到 URL
+        registry.addResourceHandler(accessUrl + "/**")
+                .addResourceLocations("file:" + uploadDir + "/");
     }
 }
