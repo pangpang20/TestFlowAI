@@ -20,7 +20,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/scheduled-tasks")
-@CrossOrigin(origins = "*")
 public class ScheduledTaskController {
 
     private static final Logger log = LoggerFactory.getLogger(ScheduledTaskController.class);

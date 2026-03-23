@@ -22,7 +22,6 @@ import java.util.concurrent.CompletableFuture;
  */
 @RestController
 @RequestMapping("/api/executions")
-@CrossOrigin(origins = "*")
 public class ExecutionController {
 
     private static final Logger log = LoggerFactory.getLogger(ExecutionController.class);
