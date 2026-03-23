@@ -5,7 +5,7 @@ import request from '@/utils/request'
  */
 export function getOverviewStatsApi() {
   return request({
-    url: '/stats/overview',
+    url: '/api/stats/overview',
     method: 'get'
   })
 }
@@ -15,7 +15,7 @@ export function getOverviewStatsApi() {
  */
 export function getExecutionStatusStatsApi() {
   return request({
-    url: '/stats/execution/status',
+    url: '/api/stats/execution/status',
     method: 'get'
   })
 }
@@ -25,7 +25,7 @@ export function getExecutionStatusStatsApi() {
  */
 export function getRecentExecutionsApi(limit: number = 10) {
   return request({
-    url: `/stats/execution/recent?limit=${limit}`,
+    url: `/api/stats/execution/recent?limit=${limit}`,
     method: 'get'
   })
 }
@@ -35,7 +35,7 @@ export function getRecentExecutionsApi(limit: number = 10) {
  */
 export function getProjectStatsApi() {
   return request({
-    url: '/stats/projects',
+    url: '/api/stats/projects',
     method: 'get'
   })
 }
@@ -45,7 +45,7 @@ export function getProjectStatsApi() {
  */
 export function getTestFlowStatsApi() {
   return request({
-    url: '/stats/testflows',
+    url: '/api/stats/testflows',
     method: 'get'
   })
 }
@@ -55,7 +55,7 @@ export function getTestFlowStatsApi() {
  */
 export function getScheduledTaskStatsApi() {
   return request({
-    url: '/stats/scheduled-tasks',
+    url: '/api/stats/scheduled-tasks',
     method: 'get'
   })
 }

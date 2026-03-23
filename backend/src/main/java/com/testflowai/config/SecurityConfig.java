@@ -95,8 +95,9 @@ public class SecurityConfig {
                 .requestMatchers("/api/files/**").permitAll()
                 // 放行 WebSocket
                 .requestMatchers("/ws/**").permitAll()
-                // 放行统计接口
+                // 放行统计接口 (带和不带/api 前缀的都要放行)
                 .requestMatchers("/api/stats/**").permitAll()
+                .requestMatchers("/stats/**").permitAll()
                 // 其他请求需要认证
                 .anyRequest().authenticated()
             )
