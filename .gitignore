@@ -1,0 +1,28 @@
+# Java/Backend
+backend/target/
+backend/*.class
+backend/*.log
+
+# Node/Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temp
+tmp/
+temp/
