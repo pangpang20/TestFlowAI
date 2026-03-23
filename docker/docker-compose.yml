@@ -1,0 +1,48 @@
+version: '2'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: testflowai-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: TestFlowAI2026
+      MYSQL_DATABASE: testflowai
+      MYSQL_USER: testflow
+      MYSQL_PASSWORD: TestFlowAI2026
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+      - ./init-sql:/docker-entrypoint-initdb.d
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --default-time-zone=+00:00
+
+  # 后端服务（开发时注释，构建时打开）
+  # backend:
+  #   build:
+  #     context: ../backend
+  #     dockerfile: Dockerfile
+  #   container_name: testflowai-backend
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     - mysql
+  #   volumes:
+  #     - ../data:/app/data
+
+  # 前端服务（开发时注释，构建时打开）
+  # frontend:
+  #   build:
+  #     context: ../frontend
+  #     dockerfile: Dockerfile
+  #   container_name: testflowai-frontend
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #   depends_on:
+  #     - backend
