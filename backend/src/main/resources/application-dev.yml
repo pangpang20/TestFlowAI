@@ -28,3 +28,10 @@ spring:
 jwt:
   secret: TestFlowAISecretKey2026VeryLongSecretKeyForJWT
   expiration: 86400000
+
+# MinIO 对象存储配置
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin123
+  bucket: testflowai-avatars

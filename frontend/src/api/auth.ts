@@ -25,3 +25,26 @@ export function getUserInfoApi() {
     method: 'get'
   })
 }
+
+// 上传头像
+export function uploadAvatarApi(file: File) {
+  const formData = new FormData()
+  formData.append('file', file)
+  return request<{ avatarUrl: string }>({
+    url: '/api/files/avatar',
+    method: 'post',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
+
+// 修改密码
+export function changePasswordApi(oldPassword: string, newPassword: string) {
+  return request({
+    url: '/api/auth/change-password',
+    method: 'post',
+    data: { oldPassword, newPassword }
+  })
+}

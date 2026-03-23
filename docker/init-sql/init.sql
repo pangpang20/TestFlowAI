@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS t_user (
     username VARCHAR(50) UNIQUE NOT NULL COMMENT '用户名',
     password VARCHAR(100) NOT NULL COMMENT '密码（BCrypt 加密）',
     email VARCHAR(100) UNIQUE COMMENT '邮箱',
+    avatar VARCHAR(500) COMMENT '头像 URL',
     status VARCHAR(20) NOT NULL DEFAULT 'active' COMMENT '状态（active/disabled）',
     last_login_at TIMESTAMP NULL COMMENT '最后登录时间',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',

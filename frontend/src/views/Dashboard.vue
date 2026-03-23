@@ -167,27 +167,180 @@
         </el-main>
       </el-container>
     </el-container>
+
+    <!-- 修改头像对话框 -->
+    <el-dialog
+      v-model="avatarDialogVisible"
+      title="修改头像"
+      width="400px"
+      :close-on-click-modal="false"
+    >
+      <div class="avatar-upload">
+        <div class="avatar-preview" v-if="avatarPreview">
+          <img :src="avatarPreview" alt="头像预览" />
+        </div>
+        <div class="avatar-preview" v-else>
+          <el-icon><Plus /></el-icon>
+        </div>
+        <input
+          ref="avatarInput"
+          type="file"
+          accept="image/*"
+          @change="handleAvatarChange"
+          style="display: none"
+        />
+      </div>
+      <template #footer>
+        <el-button @click="avatarDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="avatarInput?.click()">选择图片</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 修改密码对话框 -->
+    <el-dialog
+      v-model="passwordDialogVisible"
+      title="修改密码"
+      width="400px"
+      :close-on-click-modal="false"
+    >
+      <el-form :model="passwordForm" label-width="80px" label-position="left">
+        <el-form-item label="旧密码">
+          <el-input
+            v-model="passwordForm.oldPassword"
+            type="password"
+            placeholder="请输入旧密码"
+            show-password
+          />
+        </el-form-item>
+        <el-form-item label="新密码">
+          <el-input
+            v-model="passwordForm.newPassword"
+            type="password"
+            placeholder="请输入新密码"
+            show-password
+          />
+        </el-form-item>
+        <el-form-item label="确认密码">
+          <el-input
+            v-model="passwordForm.confirmPassword"
+            type="password"
+            placeholder="请再次输入新密码"
+            show-password
+          />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="passwordDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="handleChangePassword">确定</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { computed, ref } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { ElMessage, ElMessageBox, ElDialog, ElButton } from 'element-plus'
 import { useUserStore } from '@/stores/user'
+import { uploadAvatarApi, changePasswordApi } from '@/api/auth'
 import {
   DataLine,
   Folder,
   Connection,
   Setting,
   CircleCheck,
-  List
+  List,
+  Plus
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
+const route = useRoute()
 const userStore = useUserStore()
 
-const activeMenu = computed(() => 'dashboard')
+// 头像上传对话框
+const avatarDialogVisible = ref(false)
+const uploading = ref(false)
+const avatarPreview = ref<string>('')
+
+// 头像文件输入
+const avatarInput = ref<HTMLInputElement | null>(null)
+
+// 处理头像上传
+const handleAvatarChange = async (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+
+  // 验证文件类型
+  if (!file.type.startsWith('image/')) {
+    ElMessage.error('只能上传图片文件')
+    return
+  }
+
+  // 验证文件大小（限制 5MB）
+  if (file.size > 5 * 1024 * 1024) {
+    ElMessage.error('文件大小不能超过 5MB')
+    return
+  }
+
+  // 预览头像
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    avatarPreview.value = e.target?.result as string
+  }
+  reader.readAsDataURL(file)
+
+  // 上传头像
+  uploading.value = true
+  try {
+    const res = await uploadAvatarApi(file)
+    const avatarUrl = res.data?.avatarUrl || res.avatarUrl
+
+    // 更新用户信息中的头像
+    if (userStore.userInfo) {
+      userStore.userInfo.avatar = avatarUrl
+    }
+
+    ElMessage.success('头像上传成功')
+    avatarDialogVisible.value = false
+  } catch (error) {
+    ElMessage.error('上传失败，请重试')
+  } finally {
+    uploading.value = false
+    // 清空 input，允许重复上传同一文件
+    if (avatarInput.value) {
+      avatarInput.value.value = ''
+    }
+  }
+}
+
+// 打开头像选择对话框
+const showAvatarDialog = () => {
+  avatarDialogVisible.value = true
+  avatarPreview.value = ''
+}
+
+// 当前激活的菜单
+const activeMenu = computed(() => {
+  const pathToIndex: Record<string, string> = {
+    '/': 'dashboard',
+    '/projects': 'projects',
+    '/tests': 'tests',
+    '/settings': 'settings'
+  }
+  return pathToIndex[route.path] || 'dashboard'
+})
+
+// 当前页面标题
+const currentTitle = computed(() => {
+  const titles: Record<string, string> = {
+    '/': '仪表盘',
+    '/projects': '项目管理',
+    '/tests': '测试管理',
+    '/settings': '系统设置'
+  }
+  return titles[route.path] || '仪表盘'
+})
 
 // 菜单路径映射
 const menuRoutes: Record<string, string> = {
@@ -199,9 +352,9 @@ const menuRoutes: Record<string, string> = {
 
 // 处理菜单点击
 const handleMenuSelect = (index: string) => {
-  const route = menuRoutes[index]
-  if (route) {
-    router.push(route)
+  const routePath = menuRoutes[index]
+  if (routePath) {
+    router.push(routePath)
   }
 }
 
@@ -212,11 +365,58 @@ const recentProjects = [
   { name: '项目 D', status: 'completed', progress: '100%' }
 ]
 
-const handleCommand = (command: string) => {
+// 用户头像下拉菜单处理
+const handleCommand = async (command: string) => {
   if (command === 'logout') {
     userStore.logout()
     router.push('/login')
     ElMessage.success('已退出登录')
+  } else if (command === 'password') {
+    showPasswordDialog()
+  } else if (command === 'avatar') {
+    showAvatarDialog()
+  }
+}
+
+// 修改密码对话框
+const passwordDialogVisible = ref(false)
+const passwordForm = ref({
+  oldPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+
+const showPasswordDialog = () => {
+  passwordForm.value = {
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  }
+  passwordDialogVisible.value = true
+}
+
+const handleChangePassword = async () => {
+  // 验证新密码格式
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,20}$/
+  if (!passwordRegex.test(passwordForm.value.newPassword)) {
+    ElMessage.error('密码格式不符：需包含大小写字母、数字和特殊字符，长度 8-20 位')
+    return
+  }
+
+  // 验证两次输入的密码是否一致
+  if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
+    ElMessage.error('两次输入的密码不一致')
+    return
+  }
+
+  try {
+    await changePasswordApi(passwordForm.value.oldPassword, passwordForm.value.newPassword)
+    ElMessage.success('密码修改成功，请重新登录')
+    passwordDialogVisible.value = false
+    userStore.logout()
+    router.push('/login')
+  } catch (error: any) {
+    ElMessage.error(error.message || '密码修改失败')
   }
 }
 </script>
@@ -347,5 +547,34 @@ const handleCommand = (command: string) => {
 
 .mt-5 {
   margin-top: 20px;
+}
+
+.avatar-upload {
+  display: flex;
+  justify-content: center;
+  padding: 20px 0;
+}
+
+.avatar-preview {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 2px dashed #dcdfe6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-preview .el-icon {
+  font-size: 50px;
+  color: #8c939d;
 }
 </style>

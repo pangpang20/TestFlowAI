@@ -157,4 +157,18 @@ public class UserService {
     public boolean validatePassword(String rawPassword, String encodedPassword) {
         return passwordUtil.matches(rawPassword, encodedPassword);
     }
+
+    /**
+     * 更新用户头像
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void updateAvatar(String userId, String avatarUrl) {
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(ResultCode.NOT_FOUND, "用户不存在");
+        }
+        user.setAvatar(avatarUrl);
+        userMapper.update(user);
+        logger.info("更新用户头像成功：{}", userId);
+    }
 }

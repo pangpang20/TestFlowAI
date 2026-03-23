@@ -3,6 +3,8 @@ package com.testflowai.controller;
 import com.testflowai.common.Result;
 import com.testflowai.service.AuthService;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -64,6 +66,20 @@ public class AuthController {
     }
 
     /**
+     * 修改密码
+     * @param username 用户名（从 Token 中获取）
+     * @param request 修改密码请求
+     * @return 修改结果
+     */
+    @PostMapping("/change-password")
+    public Result<Void> changePassword(
+            @AuthenticationPrincipal String username,
+            @RequestBody ChangePasswordRequest request) {
+        authService.changePassword(username, request.oldPassword, request.newPassword);
+        return Result.success("密码修改成功", null);
+    }
+
+    /**
      * 登录请求 DTO
      */
     public static class LoginRequest {
@@ -87,6 +103,37 @@ public class AuthController {
 
         public void setPassword(String password) {
             this.password = password;
+        }
+    }
+
+    /**
+     * 修改密码请求 DTO
+     */
+    public static class ChangePasswordRequest {
+        @NotBlank(message = "旧密码不能为空")
+        private String oldPassword;
+
+        @NotBlank(message = "新密码不能为空")
+        @Size(min = 8, max = 20, message = "密码长度必须在 8-20 之间")
+        // 密码必须包含大小写字母、数字和特殊字符
+        @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{8,20}$",
+                 message = "密码必须包含大小写字母、数字和特殊字符")
+        private String newPassword;
+
+        public String getOldPassword() {
+            return oldPassword;
+        }
+
+        public void setOldPassword(String oldPassword) {
+            this.oldPassword = oldPassword;
+        }
+
+        public String getNewPassword() {
+            return newPassword;
+        }
+
+        public void setNewPassword(String newPassword) {
+            this.newPassword = newPassword;
         }
     }
 }

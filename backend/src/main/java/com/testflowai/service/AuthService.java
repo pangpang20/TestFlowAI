@@ -107,9 +107,40 @@ public class AuthService {
         result.setUserId(user.getUserId());
         result.setUsername(user.getUsername());
         result.setEmail(user.getEmail());
+        result.setAvatar(user.getAvatar());
         result.setStatus(user.getStatus());
         result.setCreatedAt(user.getCreatedAt());
         result.setUpdatedAt(user.getUpdatedAt());
         return result;
+    }
+
+    /**
+     * 修改密码
+     * @param username 用户名
+     * @param oldPassword 旧密码
+     * @param newPassword 新密码
+     */
+    public void changePassword(String username, String oldPassword, String newPassword) {
+        if (username == null || username.isEmpty()) {
+            throw new BusinessException(ResultCode.UNAUTHORIZED, "未登录");
+        }
+
+        // 查询用户
+        User user = userMapper.selectByUsername(username);
+        if (user == null) {
+            throw new BusinessException(ResultCode.NOT_FOUND, "用户不存在");
+        }
+
+        // 验证旧密码
+        if (!passwordUtil.matches(oldPassword, user.getPassword())) {
+            throw new BusinessException("旧密码错误");
+        }
+
+        // 更新密码
+        String encodedPassword = passwordUtil.encode(newPassword);
+        user.setPassword(encodedPassword);
+        userMapper.update(user);
+
+        logger.info("用户 {} 密码修改成功", username);
     }
 }

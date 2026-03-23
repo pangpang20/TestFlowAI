@@ -21,6 +21,21 @@ services:
       - --collation-server=utf8mb4_unicode_ci
       - --default-time-zone=+00:00
 
+  # MinIO 对象存储服务
+  minio:
+    image: minio/minio:latest
+    container_name: testflowai-minio
+    restart: always
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin123
+    ports:
+      - "29001:9001"
+      - "29000:9000"
+    volumes:
+      - ./minio-data:/data
+    command: server /data --console-address ":9001"
+
   # 后端服务（开发时注释，构建时打开）
   # backend:
   #   build:

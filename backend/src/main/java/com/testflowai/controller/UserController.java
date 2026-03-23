@@ -6,6 +6,7 @@ import com.testflowai.service.UserService;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -109,7 +110,10 @@ public class UserController {
         private String username;
 
         @NotBlank(message = "密码不能为空")
-        @Size(min = 6, max = 32, message = "密码长度必须在 6-32 之间")
+        @Size(min = 8, max = 20, message = "密码长度必须在 8-20 之间")
+        // 密码必须包含大小写字母、数字和特殊字符
+        @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{8,20}$",
+                 message = "密码必须包含大小写字母、数字和特殊字符")
         private String password;
 
         @Email(message = "邮箱格式不正确")

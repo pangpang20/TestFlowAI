@@ -35,6 +35,11 @@ public class User implements Serializable {
     private String email;
 
     /**
+     * 头像 URL
+     */
+    private String avatar;
+
+    /**
      * 状态：active-正常，disabled-禁用
      */
     private String status;
