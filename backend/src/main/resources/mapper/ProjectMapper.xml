@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.testflowai.mapper.ProjectMapper">
+
+    <resultMap id="ProjectResult" type="com.testflowai.entity.Project">
+        <result column="project_id" property="projectId"/>
+        <result column="project_name" property="projectName"/>
+        <result column="description" property="description"/>
+        <result column="owner" property="owner"/>
+        <result column="status" property="status"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="progress" property="progress"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="deleted_at" property="deletedAt"/>
+        <result column="deleted" property="deleted"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="deleted_by" property="deletedBy"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        project_id, project_name, description, owner, status, start_date, end_date,
+        progress, created_at, updated_at, deleted_at, deleted, created_by, updated_by, deleted_by
+    </sql>
+
+    <select id="selectById" resultMap="ProjectResult">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_project
+        WHERE project_id = #{projectId} AND deleted = 0
+    </select>
+
+    <select id="selectAll" resultMap="ProjectResult">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_project
+        WHERE deleted = 0
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="selectByStatus" resultMap="ProjectResult">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_project
+        WHERE status = #{status} AND deleted = 0
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="searchByName" resultMap="ProjectResult">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_project
+        WHERE project_name LIKE CONCAT('%', #{keyword}, '%') AND deleted = 0
+        ORDER BY created_at DESC
+    </select>
+
+    <insert id="insert" parameterType="com.testflowai.entity.Project">
+        INSERT INTO t_project (
+            project_id, project_name, description, owner, status,
+            start_date, end_date, progress, created_by, updated_by
+        ) VALUES (
+            #{projectId}, #{projectName}, #{description}, #{owner}, #{status},
+            #{startDate}, #{endDate}, #{progress}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.testflowai.entity.Project">
+        UPDATE t_project
+        <set>
+            <if test="projectName != null">project_name = #{projectName},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="owner != null">owner = #{owner},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="startDate != null">start_date = #{startDate},</if>
+            <if test="endDate != null">end_date = #{endDate},</if>
+            <if test="progress != null">progress = #{progress},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+            updated_at = CURRENT_TIMESTAMP
+        </set>
+        WHERE project_id = #{projectId} AND deleted = 0
+    </update>
+
+    <update id="deleteById">
+        UPDATE t_project
+        SET deleted = 1, deleted_at = CURRENT_TIMESTAMP, deleted_by = #{deletedBy, jdbcType=VARCHAR}
+        WHERE project_id = #{projectId} AND deleted = 0
+    </update>
+
+    <select id="existsByName" resultType="boolean">
+        SELECT EXISTS(
+            SELECT 1 FROM t_project
+            WHERE project_name = #{projectName} AND deleted = 0
+        )
+    </select>
+
+</mapper>

@@ -17,13 +17,13 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/projects',
     name: 'Projects',
-    component: () => import('@/views/Dashboard.vue'),
+    component: () => import('@/views/Projects.vue'),
     meta: { title: '项目管理', requiresAuth: true }
   },
   {
     path: '/tests',
     name: 'Tests',
-    component: () => import('@/views/Dashboard.vue'),
+    component: () => import('@/views/TestFlows.vue'),
     meta: { title: '测试管理', requiresAuth: true }
   },
   {

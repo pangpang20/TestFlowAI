@@ -213,6 +213,31 @@ TestFlowAI/
 | PUT | /api/users/{id} | 更新用户 |
 | DELETE | /api/users/{id} | 删除用户 |
 
+### 项目接口
+| 方法 | 路径 | 描述 |
+|------|------|------|
+| GET | /api/projects | 获取项目列表 |
+| GET | /api/projects/{id} | 获取项目详情 |
+| POST | /api/projects | 创建项目 |
+| PUT | /api/projects/{id} | 更新项目 |
+| DELETE | /api/projects/{id} | 删除项目 |
+| PATCH | /api/projects/{id}/progress | 更新项目进度 |
+| PATCH | /api/projects/{id}/status | 更新项目状态 |
+| GET | /api/projects/search | 搜索项目 |
+
+### 测试流接口
+| 方法 | 路径 | 描述 |
+|------|------|------|
+| GET | /api/testflows | 获取测试流列表 |
+| GET | /api/testflows/{id} | 获取测试流详情 |
+| POST | /api/testflows | 创建测试流 |
+| PUT | /api/testflows/{id} | 更新测试流 |
+| DELETE | /api/testflows/{id} | 删除测试流 |
+| POST | /api/testflows/{id}/duplicate | 复制测试流 |
+| GET | /api/testflows/{id}/export | 导出测试流 JSON |
+| POST | /api/testflows/import | 导入测试流 JSON |
+| GET | /api/testflows/search | 搜索测试流 |
+
 ### 文件接口
 | 方法 | 路径 | 描述 |
 |------|------|------|

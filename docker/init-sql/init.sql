@@ -149,6 +149,7 @@ CREATE TABLE IF NOT EXISTS t_testflow (
     variables TEXT COMMENT '变量 JSON',
     tags TEXT COMMENT '标签 JSON',
     expected_report TEXT COMMENT '预期报告 JSON',
+    project_id VARCHAR(36) COMMENT '项目 ID',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     deleted_at TIMESTAMP NULL COMMENT '删除时间',
@@ -323,5 +324,45 @@ INSERT INTO t_user (user_id, username, password, email, status, deleted) VALUES
 -- 分配管理员角色给默认管理员
 INSERT INTO t_user_role (user_id, role_id, deleted) VALUES
 ('user-admin-001', 'role-admin-001', 0);
+
+-- ============================================
+-- 6. 项目相关表
+-- ============================================
+
+-- 项目表
+CREATE TABLE IF NOT EXISTS t_project (
+    project_id VARCHAR(36) PRIMARY KEY COMMENT '项目 ID（UUID）',
+    project_name VARCHAR(100) NOT NULL COMMENT '项目名称',
+    description VARCHAR(500) COMMENT '项目描述',
+    owner VARCHAR(50) COMMENT '项目负责人',
+    status VARCHAR(20) NOT NULL DEFAULT 'active' COMMENT '状态（active/completed/archived）',
+    start_date DATE COMMENT '开始日期',
+    end_date DATE COMMENT '结束日期',
+    progress INT NOT NULL DEFAULT 0 COMMENT '进度（0-100）',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted_at TIMESTAMP NULL COMMENT '删除时间',
+    deleted TINYINT NOT NULL DEFAULT 0 COMMENT '软删除标记（1-删除，0-未删除）',
+    created_by VARCHAR(36) COMMENT '创建者',
+    updated_by VARCHAR(36) COMMENT '更新者',
+    deleted_by VARCHAR(36) COMMENT '删除者',
+    INDEX idx_project_name (project_name),
+    INDEX idx_project_status (status)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目表';
+
+-- 项目成员关联表
+CREATE TABLE IF NOT EXISTS t_project_member (
+    project_id VARCHAR(36) NOT NULL COMMENT '项目 ID',
+    user_id VARCHAR(36) NOT NULL COMMENT '用户 ID',
+    role VARCHAR(50) NOT NULL DEFAULT 'member' COMMENT '角色（owner/lead/member）',
+    joined_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '加入时间',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted_at TIMESTAMP NULL COMMENT '删除时间',
+    deleted TINYINT NOT NULL DEFAULT 0 COMMENT '软删除标记（1-删除，0-未删除）',
+    PRIMARY KEY (project_id, user_id),
+    FOREIGN KEY (project_id) REFERENCES t_project(project_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES t_user(user_id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='项目成员关联表';
 
 SET FOREIGN_KEY_CHECKS = 1;
