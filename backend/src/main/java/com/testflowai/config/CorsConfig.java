@@ -48,8 +48,8 @@ public class CorsConfig implements WebMvcConfigurer {
         List<String> headers = Arrays.asList(allowedHeaders);
 
         registry.addMapping("/**")
-            // 允许的源
-            .allowedOrigins(origins.toArray(new String[0]))
+            // 允许的源模式（使用 allowedOriginPatterns 替代 allowedOrigins，支持通配符）
+            .allowedOriginPatterns(origins.toArray(new String[0]))
             // 允许的方法
             .allowedMethods(methods.toArray(new String[0]))
             // 允许的头部
