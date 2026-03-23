@@ -114,8 +114,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // 从配置文件读取允许的源
-        configuration.setAllowedOrigins(
+        // 从配置文件读取允许的源模式（使用 allowedOriginPatterns 替代 allowedOrigins，支持通配符）
+        configuration.setAllowedOriginPatterns(
             Arrays.stream(allowedOrigins.split(","))
                 .map(String::trim)
                 .collect(Collectors.toList())
