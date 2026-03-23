@@ -93,6 +93,10 @@ public class SecurityConfig {
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                 // 放行文件访问路径
                 .requestMatchers("/api/files/**").permitAll()
+                // 放行 WebSocket
+                .requestMatchers("/ws/**").permitAll()
+                // 放行统计接口
+                .requestMatchers("/api/stats/**").permitAll()
                 // 其他请求需要认证
                 .anyRequest().authenticated()
             )
