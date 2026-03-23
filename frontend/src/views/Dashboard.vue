@@ -11,6 +11,7 @@
           background-color="#304156"
           text-color="#bfcbd9"
           active-text-color="#409EFF"
+          @select="handleMenuSelect"
         >
           <el-menu-item index="dashboard">
             <el-icon><DataLine /></el-icon>
@@ -36,7 +37,7 @@
         <!-- 顶部导航 -->
         <el-header class="header">
           <div class="header-left">
-            <h3>仪表盘</h3>
+            <h3>{{ currentTitle }}</h3>
           </div>
           <div class="header-right">
             <span class="username">{{ userStore.username }}</span>
@@ -44,6 +45,13 @@
               <el-avatar :size="36" class="avatar">
                 {{ userStore.username.charAt(0).toUpperCase() }}
               </el-avatar>
+              <template #dropdown>
+                <el-dropdown-menu>
+                  <el-dropdown-item command="password">修改密码</el-dropdown-item>
+                  <el-dropdown-item command="avatar">修改头像</el-dropdown-item>
+                  <el-dropdown-item divided command="logout">退出登录</el-dropdown-item>
+                </el-dropdown-menu>
+              </template>
             </el-dropdown>
           </div>
         </el-header>
@@ -181,6 +189,22 @@ const userStore = useUserStore()
 
 const activeMenu = computed(() => 'dashboard')
 
+// 菜单路径映射
+const menuRoutes: Record<string, string> = {
+  dashboard: '/',
+  projects: '/projects',
+  tests: '/tests',
+  settings: '/settings'
+}
+
+// 处理菜单点击
+const handleMenuSelect = (index: string) => {
+  const route = menuRoutes[index]
+  if (route) {
+    router.push(route)
+  }
+}
+
 const recentProjects = [
   { name: '项目 A', status: 'running', progress: '75%' },
   { name: '项目 B', status: 'completed', progress: '100%' },
@@ -200,10 +224,16 @@ const handleCommand = (command: string) => {
 <style scoped>
 .dashboard-container {
   height: 100vh;
+  overflow: hidden;
+}
+
+.dashboard-container .el-container {
+  height: 100%;
 }
 
 .sidebar {
   background-color: #304156;
+  overflow-y: auto;
 }
 
 .logo {

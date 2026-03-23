@@ -6,6 +6,7 @@ import com.testflowai.service.UserService;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -32,6 +33,23 @@ public class UserController {
     public Result<List<User>> getAll() {
         List<User> users = userService.getAll();
         return Result.success(users);
+    }
+
+    /**
+     * 获取当前登录用户信息
+     */
+    @GetMapping("/info")
+    public Result<java.util.Map<String, Object>> getUserInfo(@AuthenticationPrincipal String username) {
+        if (username == null) {
+            return Result.error("未登录");
+        }
+        User user = userService.getByUsername(username);
+        java.util.Map<String, Object> userInfo = new java.util.HashMap<>();
+        userInfo.put("id", user.getUserId());
+        userInfo.put("username", user.getUsername());
+        userInfo.put("email", user.getEmail());
+        userInfo.put("role", "admin"); // TODO: 从角色表获取
+        return Result.success(userInfo);
     }
 
     /**

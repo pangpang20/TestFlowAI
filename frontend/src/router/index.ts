@@ -15,6 +15,24 @@ const routes: RouteRecordRaw[] = [
     meta: { title: '仪表盘', requiresAuth: true }
   },
   {
+    path: '/projects',
+    name: 'Projects',
+    component: () => import('@/views/Dashboard.vue'),
+    meta: { title: '项目管理', requiresAuth: true }
+  },
+  {
+    path: '/tests',
+    name: 'Tests',
+    component: () => import('@/views/Dashboard.vue'),
+    meta: { title: '测试管理', requiresAuth: true }
+  },
+  {
+    path: '/settings',
+    name: 'Settings',
+    component: () => import('@/views/Dashboard.vue'),
+    meta: { title: '系统设置', requiresAuth: true }
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
     redirect: '/'

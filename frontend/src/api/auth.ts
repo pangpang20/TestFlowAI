@@ -21,7 +21,7 @@ export function logoutApi() {
 // 获取用户信息
 export function getUserInfoApi() {
   return request<UserInfo>({
-    url: '/api/user/info',
+    url: '/api/users/info',
     method: 'get'
   })
 }

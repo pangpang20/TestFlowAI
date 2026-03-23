@@ -22,7 +22,8 @@ export const useUserStore = defineStore('user', () => {
   async function login(username: string, password: string) {
     try {
       const res = await loginApi(username, password)
-      token.value = res.token
+      // 后端返回格式：{ code, message, data: { token }, timestamp }
+      token.value = res.data?.token || res.token
       await getUserInfo()
       return res
     } catch (error) {
@@ -34,7 +35,8 @@ export const useUserStore = defineStore('user', () => {
   async function getUserInfo() {
     try {
       const res = await getUserInfoApi()
-      userInfo.value = res
+      // 后端返回格式：{ code, message, data: { userInfo }, timestamp }
+      userInfo.value = res.data || res
       return res
     } catch (error) {
       throw error
