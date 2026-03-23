@@ -317,7 +317,7 @@ INSERT INTO t_role_permission (role_id, permission_id, deleted) VALUES
 
 -- 插入默认管理员账户（密码为 admin123，BCrypt 加密）
 INSERT INTO t_user (user_id, username, password, email, status, deleted) VALUES
-('user-admin-001', 'admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'admin@testflowai.com', 'active', 0);
+('user-admin-001', 'admin', '$2b$10$uh2N2o0wbkBCGykMI4G9puDq9GqTBcmfftF2myIWkuPCLZiTyYST.', 'admin@testflowai.com', 'active', 0);
 
 -- 分配管理员角色给默认管理员
 INSERT INTO t_user_role (user_id, role_id, deleted) VALUES

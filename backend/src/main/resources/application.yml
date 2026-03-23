@@ -33,3 +33,4 @@ logging:
     root: INFO
     com.testflowai: DEBUG
     org.springframework.security: DEBUG
+    com.testflowai.mapper: TRACE
