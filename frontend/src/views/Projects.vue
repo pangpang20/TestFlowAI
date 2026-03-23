@@ -311,14 +311,11 @@ onMounted(() => {
 
 <style scoped>
 .projects-container {
-  padding: 20px;
-  background-color: #f0f2f5;
-  min-height: 100vh;
+  padding: 0;
 }
 
 .projects-card {
-  max-width: 1400px;
-  margin: 0 auto;
+  height: 100%;
 }
 
 .card-header {

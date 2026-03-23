@@ -10,27 +10,35 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/',
-    name: 'Dashboard',
+    name: 'Layout',
     component: () => import('@/views/Dashboard.vue'),
-    meta: { title: '仪表盘', requiresAuth: true }
-  },
-  {
-    path: '/projects',
-    name: 'Projects',
-    component: () => import('@/views/Projects.vue'),
-    meta: { title: '项目管理', requiresAuth: true }
-  },
-  {
-    path: '/tests',
-    name: 'Tests',
-    component: () => import('@/views/TestFlows.vue'),
-    meta: { title: '测试管理', requiresAuth: true }
-  },
-  {
-    path: '/settings',
-    name: 'Settings',
-    component: () => import('@/views/Dashboard.vue'),
-    meta: { title: '系统设置', requiresAuth: true }
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: '',
+        name: 'Dashboard',
+        component: () => import('@/views/DashboardHome.vue'),
+        meta: { title: '仪表盘' }
+      },
+      {
+        path: 'projects',
+        name: 'Projects',
+        component: () => import('@/views/Projects.vue'),
+        meta: { title: '项目管理' }
+      },
+      {
+        path: 'tests',
+        name: 'Tests',
+        component: () => import('@/views/TestFlows.vue'),
+        meta: { title: '测试管理' }
+      },
+      {
+        path: 'settings',
+        name: 'Settings',
+        component: () => import('@/views/Settings.vue'),
+        meta: { title: '系统设置' }
+      }
+    ]
   },
   {
     path: '/:pathMatch(.*)*',
@@ -50,7 +58,7 @@ router.beforeEach((to, from, next) => {
   const isLoggedIn = userStore.isLoggedIn
 
   // 设置页面标题
-  document.title = `${to.meta.title} - TestFlowAI`
+  document.title = `${to.meta.title || '首页'} - TestFlowAI`
 
   // 需要登录的页面
   if (to.meta.requiresAuth) {
