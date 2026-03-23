@@ -12,9 +12,13 @@ service.interceptors.request.use(
   (config: any) => {
     const userStore = useUserStore()
     const token = userStore.token
+    console.log('[Request] URL:', config.baseURL + config.url)
+    console.log('[Request] Method:', config.method)
+    console.log('[Request] Headers:', config.headers)
     if (token) {
       config.headers = config.headers || {}
       config.headers['Authorization'] = `Bearer ${token}`
+      console.log('[Request] Token:', token.substring(0, 20) + '...')
     }
     return config
   },
@@ -27,14 +31,20 @@ service.interceptors.request.use(
 // 响应拦截器
 service.interceptors.response.use(
   (response: AxiosResponse) => {
+    console.log('[Response] Status:', response.status, 'URL:', response.config.url)
+    console.log('[Response] Data:', response.data)
     const res = response.data
     return res
   },
   (error: AxiosError) => {
-    console.error('Response error:', error)
+    console.error('[Response Error] Full error:', error)
+    console.error('[Response Error] Config:', error.config)
+    console.error('[Response Error] Response:', error.response)
 
     if (error.response) {
       const status = error.response.status
+      console.error('[Response Error] Status:', status)
+      console.error('[Response Error] Data:', error.response.data)
 
       if (status === 401) {
         const userStore = useUserStore()
@@ -49,7 +59,10 @@ service.interceptors.response.use(
       } else {
         ElMessage.error(error.response.data?.message || '请求失败')
       }
+    } else if (error.code === 'ECONNABORTED') {
+      ElMessage.error('请求超时，请检查网络')
     } else {
+      console.error('[Response Error] No response, network error:', error.message)
       ElMessage.error('网络错误，请检查网络连接')
     }
 

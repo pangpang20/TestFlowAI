@@ -57,7 +57,8 @@ docker-compose up -d mysql
 ```bash
 cd backend
 mvn spring-boot:run
-# 默认端口：8080
+# 服务端口：18080
+# 日志文件：/tmp/backend.log
 ```
 
 ### 3. 启动前端
@@ -66,16 +67,82 @@ mvn spring-boot:run
 cd frontend
 npm install
 npm run dev
-# 默认端口：5173
+# 服务端口：3001
+# 日志文件：/tmp/frontend.log
 ```
 
 ### 4. 访问应用
 
-打开浏览器访问 `http://localhost:5173`
+打开浏览器访问：
+- 本地访问：`http://localhost:3001`
+- 局域网访问：`http://172.16.1.137:3001`
 
 默认管理员账户:
 - 用户名：`admin`
 - 密码：`admin123`
+
+## 配置说明
+
+### 后端配置 (`backend/src/main/resources/application-dev.yml`)
+
+```yaml
+# 服务端口
+server:
+  port: 18080
+
+# 数据库配置
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/testflowai
+    username: root
+    password: TestFlowAI2026
+
+# CORS 跨域配置（支持的 frontend 地址）
+spring.web.cors:
+  allowed-origins: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,http://172.16.1.137:3001
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  allowed-headers: "*"
+  allow-credentials: true
+  max-age: 3600
+
+# JWT 配置
+jwt:
+  secret: TestFlowAISecretKey2026VeryLongSecretKeyForJWT
+  expiration: 86400000  # 24 小时
+```
+
+### 前端配置 (`frontend/.env`)
+
+```bash
+# 后端 API 地址
+VITE_API_BASE_URL=http://172.16.1.137:18080
+```
+
+> **注意**: 如果在本地开发，可以改为 `http://localhost:18080`；如果使用局域网 IP 访问，需要确保后端 CORS 配置中包含对应的 frontend 地址。
+
+### 日志位置
+
+| 服务 | 日志文件 |
+|------|----------|
+| 后端 | `/tmp/backend.log` |
+| 前端 | `/tmp/frontend.log` |
+
+### 常见问题
+
+#### 网络错误/跨域问题
+如果前端提示"网络错误，请检查网络连接"，请检查：
+1. 后端服务是否正常运行（端口 18080）
+2. 前端 `.env` 中的 `VITE_API_BASE_URL` 是否正确
+3. 后端 CORS 配置是否包含当前 frontend 的地址
+
+#### 端口被占用
+```bash
+# 释放端口 18080
+lsof -ti:18080 | xargs kill -9
+
+# 释放端口 3001
+lsof -ti:3001 | xargs kill -9
+```
 
 ## 项目结构
 

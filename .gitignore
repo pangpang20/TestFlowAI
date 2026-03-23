@@ -26,3 +26,6 @@ logs/
 # Temp
 tmp/
 temp/
+
+# Error Pictures
+err_pic/

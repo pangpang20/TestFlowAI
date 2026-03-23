@@ -1,6 +1,7 @@
 package com.testflowai.config;
 
 import com.testflowai.util.JwtUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +20,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Spring Security 配置类
@@ -34,6 +36,22 @@ public class SecurityConfig {
     public SecurityConfig(JwtUtil jwtUtil) {
         this.jwtUtil = jwtUtil;
     }
+
+    // 从配置文件读取 CORS 配置
+    @Value("${spring.web.cors.allowed-origins:http://localhost:3000}")
+    private String allowedOrigins;
+
+    @Value("${spring.web.cors.allowed-methods:GET,POST,PUT,DELETE,OPTIONS}")
+    private String allowedMethods;
+
+    @Value("${spring.web.cors.allowed-headers:*}")
+    private String allowedHeaders;
+
+    @Value("${spring.web.cors.allow-credentials:true}")
+    private Boolean allowCredentials;
+
+    @Value("${spring.web.cors.max-age:3600}")
+    private Long maxAge;
 
     /**
      * 配置密码编码器
@@ -82,26 +100,29 @@ public class SecurityConfig {
     }
 
     /**
-     * 配置 CORS
+     * 配置 CORS - 从配置文件读取允许的来源
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // 允许的源
-        configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:3000",
-            "http://127.0.0.1:3000"
-        ));
+        // 从配置文件读取允许的源
+        configuration.setAllowedOrigins(
+            Arrays.stream(allowedOrigins.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList())
+        );
         // 允许的方法
-        configuration.setAllowedMethods(Arrays.asList(
-            "GET", "POST", "PUT", "DELETE", "OPTIONS"
-        ));
+        configuration.setAllowedMethods(
+            Arrays.stream(allowedMethods.split(","))
+                .map(String::trim)
+                .collect(Collectors.toList())
+        );
         // 允许的头部
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedHeaders(List.of(allowedHeaders));
         // 允许携带凭证
-        configuration.setAllowCredentials(true);
+        configuration.setAllowCredentials(allowCredentials);
         // 预检请求缓存时间
-        configuration.setMaxAge(3600L);
+        configuration.setMaxAge(maxAge);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

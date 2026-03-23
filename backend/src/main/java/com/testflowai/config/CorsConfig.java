@@ -15,7 +15,13 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
             // 允许的源
-            .allowedOrigins("http://localhost:3000", "http://127.0.0.1:3000")
+            .allowedOrigins(
+                "http://localhost:3000",
+                "http://localhost:3001",
+                "http://127.0.0.1:3000",
+                "http://127.0.0.1:3001",
+                "http://172.16.1.137:3001"
+            )
             // 允许的方法
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
             // 允许的头部

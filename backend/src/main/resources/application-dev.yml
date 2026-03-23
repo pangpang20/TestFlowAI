@@ -15,14 +15,16 @@ spring:
       max-lifetime: 1800000
       connection-timeout: 30000
 
+  # CORS 跨域配置
+  web:
+    cors:
+      allowed-origins: http://localhost:3000,http://localhost:3001,http://127.0.0.1:3000,http://127.0.0.1:3001,http://172.16.1.137:3001
+      allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+      allowed-headers: "*"
+      allow-credentials: true
+      max-age: 3600
+
 # JWT 配置（开发环境）
 jwt:
   secret: TestFlowAISecretKey2026VeryLongSecretKeyForJWT
   expiration: 86400000
-
-# CORS 配置
-cors:
-  allowed-origins: http://localhost:3000,http://127.0.0.1:3000
-  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
-  allowed-headers: "*"
-  allow-credentials: true
