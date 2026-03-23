@@ -83,12 +83,16 @@ public class SecurityConfig {
             // 配置会话管理为无状态
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            // 配置授权规则
+            // 配置静态资源不拦截
             .authorizeHttpRequests(auth -> auth
+                // 放行静态资源
+                .requestMatchers("/*.js", "/*.css", "/*.html", "/*.ico", "/*.png", "/*.jpg", "/*.gif").permitAll()
                 // 放行登录、登出接口
                 .requestMatchers("/api/auth/**").permitAll()
                 // 放行 Swagger、静态资源
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                // 放行文件访问路径
+                .requestMatchers("/api/files/**").permitAll()
                 // 其他请求需要认证
                 .anyRequest().authenticated()
             )

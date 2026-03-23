@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TestFlowAI Recorder</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      width: 380px;
+      min-height: 400px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      min-height: 360px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .header p {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .status.recording {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .status.stopped {
+      background: #f0fdf4;
+      color: #16a34a;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    .status.recording .status-dot {
+      background: #dc2626;
+    }
+
+    .status.stopped .status-dot {
+      background: #16a34a;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .action-list {
+      flex: 1;
+      overflow-y: auto;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      max-height: 200px;
+    }
+
+    .action-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 12px;
+    }
+
+    .action-item:last-child {
+      border-bottom: none;
+    }
+
+    .action-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .action-icon.click { background: #dbeafe; }
+    .action-icon.input { background: #fef3c7; }
+    .action-icon.select { background: #d1fae5; }
+    .action-icon.navigate { background: #ede9fe; }
+    .action-icon.check { background: #fce7f3; }
+
+    .action-content {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .action-type {
+      font-weight: 600;
+      color: #374151;
+      text-transform: capitalize;
+    }
+
+    .action-desc {
+      color: #6b7280;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .action-time {
+      font-size: 10px;
+      color: #9ca3af;
+      margin-top: 2px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #9ca3af;
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #f5576c 0%, #ee5a6f 100%);
+      color: white;
+    }
+
+    .btn-danger:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+    }
+
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .btn-secondary:hover:not(:disabled) {
+      background: #e5e7eb;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .btn-sm {
+      padding: 8px 12px;
+      font-size: 12px;
+      flex: 1;
+    }
+
+    .sync-status {
+      text-align: center;
+      font-size: 12px;
+      margin-top: 12px;
+      padding: 8px;
+      border-radius: 6px;
+    }
+
+    .sync-status.success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .sync-status.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .sync-status.hidden {
+      display: none;
+    }
+
+    .config-section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    .config-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .config-label {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .config-input {
+      width: 150px;
+      padding: 6px 10px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>🎬 TestFlowAI Recorder</h1>
+      <p>录制浏览器操作生成测试用例</p>
+    </div>
+
+    <div id="status" class="status stopped">
+      <div class="status-dot"></div>
+      <span id="statusText">已停止录制</span>
+    </div>
+
+    <div class="action-list" id="actionList">
+      <div class="empty-state">
+        <div class="empty-state-icon">📝</div>
+        <p>暂无录制操作</p>
+        <p style="font-size: 11px; margin-top: 8px;">点击"开始录制"按钮开始记录</p>
+      </div>
+    </div>
+
+    <div class="btn-group">
+      <button id="toggleBtn" class="btn btn-primary">
+        <span id="toggleIcon">▶</span>
+        <span id="toggleText">开始录制</span>
+      </button>
+    </div>
+
+    <div class="action-buttons" id="actionButtons" style="display: none;">
+      <button id="clearBtn" class="btn btn-secondary btn-sm">清空</button>
+      <button id="saveBtn" class="btn btn-primary btn-sm">保存到 TestFlowAI</button>
+    </div>
+
+    <div id="syncStatus" class="sync-status hidden"></div>
+
+    <div class="config-section">
+      <div class="config-item">
+        <label class="config-label">TestFlowAI 地址</label>
+        <input type="text" id="apiUrl" class="config-input" placeholder="http://localhost:18080" />
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

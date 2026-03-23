@@ -25,6 +25,14 @@
             <el-icon><Connection /></el-icon>
             <span>测试管理</span>
           </el-menu-item>
+          <el-menu-item index="executions">
+            <el-icon><VideoPlay /></el-icon>
+            <span>执行历史</span>
+          </el-menu-item>
+          <el-menu-item index="scheduled-tasks">
+            <el-icon><Clock /></el-icon>
+            <span>定时任务</span>
+          </el-menu-item>
           <el-menu-item index="settings">
             <el-icon><Setting /></el-icon>
             <span>系统设置</span>
@@ -153,7 +161,9 @@ import {
   Setting,
   CircleCheck,
   List,
-  Plus
+  Plus,
+  VideoPlay,
+  Clock
 } from '@element-plus/icons-vue'
 
 const router = useRouter()
@@ -244,6 +254,9 @@ const activeMenu = computed(() => {
     'Dashboard': 'dashboard',
     'Projects': 'projects',
     'Tests': 'tests',
+    'Executions': 'executions',
+    'ScheduledTasks': 'scheduled-tasks',
+    'ReportDetail': 'executions',
     'Settings': 'settings'
   }
   return nameToIndex[routeName] || 'dashboard'
@@ -260,6 +273,8 @@ const handleMenuSelect = (index: string) => {
     'dashboard': '/',
     'projects': '/projects',
     'tests': '/tests',
+    'executions': '/executions',
+    'scheduled-tasks': '/scheduled-tasks',
     'settings': '/settings'
   }
   const path = nameToPath[index]
@@ -388,5 +403,39 @@ const handleChangePassword = async () => {
   background-color: #f0f2f5;
   padding: 20px;
   overflow-y: auto;
+}
+
+.avatar-upload {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0;
+}
+
+.avatar-preview {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 2px dashed #d9d9d9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.avatar-preview:hover {
+  border-color: #409EFF;
+}
+
+.avatar-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-preview .el-icon {
+  font-size: 40px;
+  color: #8c939d;
 }
 </style>

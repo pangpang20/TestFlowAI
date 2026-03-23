@@ -60,4 +60,11 @@ public interface PermissionMapper {
      * @return 影响行数
      */
     int deleteById(@Param("permissionId") String permissionId);
+
+    /**
+     * 检查权限编码是否存在
+     * @param permissionCode 权限编码
+     * @return 是否存在
+     */
+    boolean existsByPermissionCode(@Param("permissionCode") String permissionCode);
 }

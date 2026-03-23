@@ -2,8 +2,10 @@ package com.testflowai.service;
 
 import com.testflowai.common.BusinessException;
 import com.testflowai.common.ResultCode;
+import com.testflowai.entity.Role;
 import com.testflowai.entity.User;
 import com.testflowai.mapper.UserMapper;
+import com.testflowai.mapper.UserRoleMapper;
 import com.testflowai.util.PasswordUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,10 +26,12 @@ public class UserService {
 
     private final UserMapper userMapper;
     private final PasswordUtil passwordUtil;
+    private final UserRoleMapper userRoleMapper;
 
-    public UserService(UserMapper userMapper, PasswordUtil passwordUtil) {
+    public UserService(UserMapper userMapper, PasswordUtil passwordUtil, UserRoleMapper userRoleMapper) {
         this.userMapper = userMapper;
         this.passwordUtil = passwordUtil;
+        this.userRoleMapper = userRoleMapper;
     }
 
     /**
@@ -170,5 +174,51 @@ public class UserService {
         user.setAvatar(avatarUrl);
         userMapper.update(user);
         logger.info("更新用户头像成功：{}", userId);
+    }
+
+    /**
+     * 获取用户的角色列表
+     */
+    public List<Role> getUserRoles(String userId) {
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(ResultCode.NOT_FOUND, "用户不存在");
+        }
+        return userRoleMapper.selectRolesByUserId(userId);
+    }
+
+    /**
+     * 给用户分配角色
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void assignRolesToUser(String userId, List<String> roleIds) {
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(ResultCode.NOT_FOUND, "用户不存在");
+        }
+
+        // 先删除用户原有的角色关联
+        userRoleMapper.deleteByUserId(userId);
+
+        // 批量插入新的角色关联
+        if (roleIds != null && !roleIds.isEmpty()) {
+            userRoleMapper.batchInsert(userId, roleIds);
+        }
+
+        logger.info("给用户分配角色成功：userId={}, roleIds={}", userId, roleIds);
+    }
+
+    /**
+     * 移除用户的角色
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void removeUserRoles(String userId) {
+        User user = userMapper.selectById(userId);
+        if (user == null) {
+            throw new BusinessException(ResultCode.NOT_FOUND, "用户不存在");
+        }
+
+        userRoleMapper.deleteByUserId(userId);
+        logger.info("移除用户角色成功：userId={}", userId);
     }
 }

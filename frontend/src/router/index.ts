@@ -37,6 +37,24 @@ const routes: RouteRecordRaw[] = [
         name: 'Settings',
         component: () => import('@/views/Settings.vue'),
         meta: { title: '系统设置' }
+      },
+      {
+        path: 'executions',
+        name: 'Executions',
+        component: () => import('@/views/Executions.vue'),
+        meta: { title: '执行历史' }
+      },
+      {
+        path: 'scheduled-tasks',
+        name: 'ScheduledTasks',
+        component: () => import('@/views/ScheduledTasks.vue'),
+        meta: { title: '定时任务' }
+      },
+      {
+        path: 'reports/:reportId',
+        name: 'ReportDetail',
+        component: () => import('@/views/ReportDetail.vue'),
+        meta: { title: '报告详情' }
       }
     ]
   },

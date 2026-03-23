@@ -44,9 +44,9 @@
     <select id="selectByUserId" resultMap="BaseResultMap">
         SELECT DISTINCT p.*
         FROM t_permission p
-        INNER JOIN t_role r ON p.permission_id = r.role_id
-        INNER JOIN t_user_role ur ON r.role_id = ur.role_id
-        WHERE ur.user_id = #{userId} AND p.deleted = 0 AND r.deleted = 0 AND ur.deleted = 0
+        INNER JOIN t_role_permission rp ON p.permission_id = rp.permission_id
+        INNER JOIN t_user_role ur ON rp.role_id = ur.role_id
+        WHERE ur.user_id = #{userId} AND p.deleted = 0 AND ur.deleted = 0
     </select>
 
     <!-- 查询所有权限 -->
@@ -87,5 +87,11 @@
         SET deleted = 1, deleted_at = NOW(), updated_at = NOW()
         WHERE permission_id = #{permissionId} AND deleted = 0
     </update>
+
+    <!-- 检查权限编码是否存在 -->
+    <select id="existsByPermissionCode" resultType="boolean">
+        SELECT COUNT(*) > 0 FROM t_permission
+        WHERE permission_code = #{permissionCode} AND deleted = 0
+    </select>
 
 </mapper>

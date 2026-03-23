@@ -70,6 +70,13 @@ public class ProjectService {
             throw new BusinessException("项目名称已存在");
         }
 
+        // 验证日期
+        if (project.getStartDate() != null && project.getEndDate() != null) {
+            if (project.getEndDate().before(project.getStartDate()) || project.getEndDate().equals(project.getStartDate())) {
+                throw new BusinessException("结束日期必须晚于开始日期");
+            }
+        }
+
         // 设置默认状态
         if (project.getStatus() == null) {
             project.setStatus("active");
@@ -104,6 +111,13 @@ public class ProjectService {
         if (project.getProjectName() != null && !project.getProjectName().equals(existingProject.getProjectName())) {
             if (projectMapper.existsByName(project.getProjectName())) {
                 throw new BusinessException("项目名称已存在");
+            }
+        }
+
+        // 验证日期
+        if (project.getStartDate() != null && project.getEndDate() != null) {
+            if (project.getEndDate().before(project.getStartDate()) || project.getEndDate().equals(project.getStartDate())) {
+                throw new BusinessException("结束日期必须晚于开始日期");
             }
         }
 

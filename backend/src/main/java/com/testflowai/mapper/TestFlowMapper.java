@@ -19,6 +19,13 @@ public interface TestFlowMapper {
     TestFlow selectById(@Param("testId") String testId);
 
     /**
+     * 根据 ID 查询测试流（别名方法）
+     */
+    default TestFlow getById(String testId) {
+        return selectById(testId);
+    }
+
+    /**
      * 查询所有测试流
      */
     List<TestFlow> selectAll();

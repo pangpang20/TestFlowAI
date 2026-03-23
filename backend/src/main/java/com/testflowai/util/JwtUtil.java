@@ -134,4 +134,13 @@ public class JwtUtil {
             return true;
         }
     }
+
+    /**
+     * 从 Token 中获取用户 ID
+     * @param token JWT Token
+     * @return 用户 ID
+     */
+    public String getUserIdFromToken(String token) {
+        return getUsernameFromToken(token);
+    }
 }

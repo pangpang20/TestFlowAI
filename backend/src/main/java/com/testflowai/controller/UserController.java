@@ -103,6 +103,24 @@ public class UserController {
     }
 
     /**
+     * 获取用户的角色列表
+     */
+    @GetMapping("/{id}/roles")
+    public Result<List<com.testflowai.entity.Role>> getUserRoles(@PathVariable String id) {
+        List<com.testflowai.entity.Role> roles = userService.getUserRoles(id);
+        return Result.success(roles);
+    }
+
+    /**
+     * 给用户分配角色
+     */
+    @PostMapping("/{id}/roles")
+    public Result<Void> assignRolesToUser(@PathVariable String id, @RequestBody AssignRolesRequest request) {
+        userService.assignRolesToUser(id, request.roleIds);
+        return Result.success("分配成功", null);
+    }
+
+    /**
      * 创建用户请求 DTO
      */
     public static class CreateUserRequest {
@@ -190,6 +208,21 @@ public class UserController {
 
         public void setStatus(Integer status) {
             this.status = status;
+        }
+    }
+
+    /**
+     * 分配角色请求 DTO
+     */
+    public static class AssignRolesRequest {
+        private List<String> roleIds;
+
+        public List<String> getRoleIds() {
+            return roleIds;
+        }
+
+        public void setRoleIds(List<String> roleIds) {
+            this.roleIds = roleIds;
         }
     }
 }

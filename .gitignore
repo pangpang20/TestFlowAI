@@ -7,6 +7,14 @@ backend/*.log
 frontend/node_modules/
 frontend/dist/
 frontend/.env.local
+frontend/src/views/components/
+
+# Docker Data (keep structure, exclude data)
+docker/mysql-data/
+docker/minio-data/
+
+# Chromium (Playwright)
+**/.cache/ms-playwright/
 
 # IDE
 .idea/
@@ -29,3 +37,9 @@ temp/
 
 # Error Pictures
 err_pic/
+
+# Uploads (avatar, screenshots)
+backend/uploads/
+
+# Chrome Extension build
+chrome-extension/dist/

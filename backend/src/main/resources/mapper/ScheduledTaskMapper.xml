@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.testflowai.mapper.ScheduledTaskMapper">
+
+    <resultMap id="BaseResultMap" type="com.testflowai.entity.ScheduledTask">
+        <id column="task_id" property="taskId"/>
+        <result column="task_name" property="taskName"/>
+        <result column="test_id" property="testId"/>
+        <result column="title" property="title"/>
+        <result column="description" property="description"/>
+        <result column="cron_expression" property="cronExpression"/>
+        <result column="status" property="status"/>
+        <result column="last_executed_at" property="lastExecutedAt"/>
+        <result column="next_execution_at" property="nextExecutionAt"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="deleted_at" property="deletedAt"/>
+        <result column="deleted" property="deleted"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="deleted_by" property="deletedBy"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        task_id, task_name, test_id, title, description, cron_expression, status,
+        last_executed_at, next_execution_at, created_at, updated_at, deleted_at,
+        deleted, created_by, updated_by, deleted_by
+    </sql>
+
+    <insert id="insert" parameterType="com.testflowai.entity.ScheduledTask">
+        INSERT INTO t_scheduled_task (
+            task_id, task_name, test_id, title, description, cron_expression,
+            status, last_executed_at, next_execution_at, created_by, updated_by
+        ) VALUES (
+            #{taskId}, #{taskName}, #{testId}, #{title}, #{description}, #{cronExpression},
+            #{status}, #{lastExecutedAt}, #{nextExecutionAt}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.testflowai.entity.ScheduledTask">
+        UPDATE t_scheduled_task
+        <set>
+            <if test="taskName != null">task_name = #{taskName},</if>
+            <if test="testId != null">test_id = #{testId},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="cronExpression != null">cron_expression = #{cronExpression},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="lastExecutedAt != null">last_executed_at = #{lastExecutedAt},</if>
+            <if test="nextExecutionAt != null">next_execution_at = #{nextExecutionAt},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+        </set>
+        WHERE task_id = #{taskId} AND deleted = 0
+    </update>
+
+    <update id="updateExecutionTime">
+        UPDATE t_scheduled_task
+        SET last_executed_at = #{lastExecutedAt},
+            next_execution_at = #{nextExecutionAt},
+            updated_at = NOW()
+        WHERE task_id = #{taskId} AND deleted = 0
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.String">
+        UPDATE t_scheduled_task SET deleted = 1, deleted_at = NOW(), deleted_by = #{deletedBy}
+        WHERE task_id = #{taskId} AND deleted = 0
+    </delete>
+
+    <select id="getById" resultMap="BaseResultMap" parameterType="java.lang.String">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_scheduled_task
+        WHERE task_id = #{taskId} AND deleted = 0
+    </select>
+
+    <select id="list" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_scheduled_task
+        WHERE deleted = 0
+        ORDER BY created_at DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM t_scheduled_task WHERE deleted = 0
+    </select>
+
+    <select id="getByStatus" resultMap="BaseResultMap" parameterType="java.lang.String">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_scheduled_task
+        WHERE status = #{status} AND deleted = 0
+        ORDER BY next_execution_at ASC
+    </select>
+
+    <select id="getDueTasks" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_scheduled_task
+        WHERE status = 'active'
+          AND deleted = 0
+          AND (next_execution_at IS NULL OR next_execution_at &lt;= #{currentTime})
+        ORDER BY next_execution_at ASC
+    </select>
+
+    <select id="getByTestId" resultMap="BaseResultMap" parameterType="java.lang.String">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_scheduled_task
+        WHERE test_id = #{testId} AND deleted = 0
+        ORDER BY created_at DESC
+    </select>
+
+</mapper>

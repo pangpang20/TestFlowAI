@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.testflowai.mapper.StepResultMapper">
+
+    <resultMap id="BaseResultMap" type="com.testflowai.entity.StepResult">
+        <id column="result_id" property="resultId"/>
+        <result column="execution_id" property="executionId"/>
+        <result column="step_id" property="stepId"/>
+        <result column="status" property="status"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="error_message" property="errorMessage"/>
+        <result column="screenshot" property="screenshot"/>
+        <result column="log" property="log"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="deleted_at" property="deletedAt"/>
+        <result column="deleted" property="deleted"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="deleted_by" property="deletedBy"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        result_id, execution_id, step_id, status, start_time, end_time,
+        error_message, screenshot, log, created_at, updated_at, deleted_at,
+        deleted, created_by, updated_by, deleted_by
+    </sql>
+
+    <insert id="insert" parameterType="com.testflowai.entity.StepResult">
+        INSERT INTO t_step_result (
+            result_id, execution_id, step_id, status, start_time, end_time,
+            error_message, screenshot, log, created_by, updated_by
+        ) VALUES (
+            #{resultId}, #{executionId}, #{stepId}, #{status}, #{startTime}, #{endTime},
+            #{errorMessage}, #{screenshot}, #{log}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO t_step_result (
+            result_id, execution_id, step_id, status, start_time, end_time,
+            error_message, screenshot, log, created_by, updated_by
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.resultId}, #{item.executionId}, #{item.stepId}, #{item.status},
+                #{item.startTime}, #{item.endTime}, #{item.errorMessage}, #{item.screenshot},
+                #{item.log}, #{item.createdBy}, #{item.updatedBy}
+            )
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.testflowai.entity.StepResult">
+        UPDATE t_step_result
+        <set>
+            <if test="status != null">status = #{status},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="errorMessage != null">error_message = #{errorMessage},</if>
+            <if test="screenshot != null">screenshot = #{screenshot},</if>
+            <if test="log != null">log = #{log},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+        </set>
+        WHERE result_id = #{resultId} AND deleted = 0
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.String">
+        UPDATE t_step_result SET deleted = 1, deleted_at = NOW(), deleted_by = #{deletedBy}
+        WHERE result_id = #{resultId} AND deleted = 0
+    </delete>
+
+    <delete id="deleteByExecutionId" parameterType="java.lang.String">
+        UPDATE t_step_result SET deleted = 1, deleted_at = NOW()
+        WHERE execution_id = #{executionId} AND deleted = 0
+    </delete>
+
+    <select id="getByExecutionId" resultMap="BaseResultMap" parameterType="java.lang.String">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_step_result
+        WHERE execution_id = #{executionId} AND deleted = 0
+        ORDER BY step_id ASC
+    </select>
+
+    <select id="getByIds" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_step_result
+        WHERE execution_id = #{executionId} AND step_id = #{stepId} AND deleted = 0
+    </select>
+
+    <update id="updateStatus">
+        UPDATE t_step_result
+        SET status = #{status}, updated_at = NOW()
+        WHERE result_id = #{resultId} AND deleted = 0
+    </update>
+
+    <select id="countByStatus" resultType="com.testflowai.mapper.StepResultMapper$StepStatusCount">
+        SELECT status, COUNT(*) as count
+        FROM t_step_result
+        WHERE execution_id = #{executionId} AND deleted = 0
+        GROUP BY status
+    </select>
+
+</mapper>

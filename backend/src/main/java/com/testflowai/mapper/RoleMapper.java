@@ -53,4 +53,11 @@ public interface RoleMapper {
      * @return 影响行数
      */
     int deleteById(@Param("roleId") String roleId);
+
+    /**
+     * 检查角色名称是否存在
+     * @param roleName 角色名称
+     * @return 是否存在
+     */
+    boolean existsByRoleName(@Param("roleName") String roleName);
 }

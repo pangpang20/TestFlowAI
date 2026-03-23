@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.testflowai.mapper.RolePermissionMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="PermissionResultMap" type="com.testflowai.entity.Permission">
+        <id column="permission_id" property="permissionId"/>
+        <result column="permission_code" property="permissionCode"/>
+        <result column="permission_name" property="permissionName"/>
+        <result column="resource" property="resource"/>
+        <result column="action" property="action"/>
+        <result column="description" property="description"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="deleted_at" property="deletedAt"/>
+        <result column="deleted" property="deleted"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="deleted_by" property="deletedBy"/>
+    </resultMap>
+
+    <!-- 根据角色 ID 查询权限列表 -->
+    <select id="selectPermissionsByRoleId" resultMap="PermissionResultMap">
+        SELECT p.*
+        FROM t_permission p
+        INNER JOIN t_role_permission rp ON p.permission_id = rp.permission_id
+        WHERE rp.role_id = #{roleId}
+          AND p.deleted = 0
+          AND rp.deleted = 0
+    </select>
+
+    <!-- 根据权限 ID 查询角色 ID 列表 -->
+    <select id="selectRoleIdsByPermissionId" resultType="java.lang.String">
+        SELECT role_id
+        FROM t_role_permission
+        WHERE permission_id = #{permissionId}
+          AND deleted = 0
+    </select>
+
+    <!-- 插入角色权限关联 -->
+    <insert id="insert">
+        INSERT INTO t_role_permission (role_id, permission_id, created_at, updated_at)
+        VALUES (#{roleId}, #{permissionId}, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE updated_at = NOW()
+    </insert>
+
+    <!-- 根据角色 ID 删除权限关联 -->
+    <delete id="deleteByRoleId">
+        UPDATE t_role_permission
+        SET deleted = 1, deleted_at = NOW(), updated_at = NOW()
+        WHERE role_id = #{roleId}
+          AND deleted = 0
+    </delete>
+
+    <!-- 根据权限 ID 删除角色关联 -->
+    <delete id="deleteByPermissionId">
+        UPDATE t_role_permission
+        SET deleted = 1, deleted_at = NOW(), updated_at = NOW()
+        WHERE permission_id = #{permissionId}
+          AND deleted = 0
+    </delete>
+
+    <!-- 批量插入角色权限关联 -->
+    <insert id="batchInsert">
+        INSERT INTO t_role_permission (role_id, permission_id, created_at, updated_at)
+        VALUES
+        <foreach collection="permissionIds" item="permissionId" separator=",">
+            (#{roleId}, #{permissionId}, NOW(), NOW())
+        </foreach>
+        ON DUPLICATE KEY UPDATE updated_at = NOW()
+    </insert>
+
+</mapper>

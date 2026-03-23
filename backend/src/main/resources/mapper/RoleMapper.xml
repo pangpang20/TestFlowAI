@@ -75,4 +75,10 @@
         WHERE role_id = #{roleId} AND deleted = 0
     </update>
 
+    <!-- 检查角色名称是否存在 -->
+    <select id="existsByRoleName" resultType="boolean">
+        SELECT COUNT(*) > 0 FROM t_role
+        WHERE role_name = #{roleName} AND deleted = 0
+    </select>
+
 </mapper>

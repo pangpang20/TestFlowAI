@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.testflowai.mapper.UserRoleMapper">
+
+    <!-- 结果映射 -->
+    <resultMap id="RoleResultMap" type="com.testflowai.entity.Role">
+        <id column="role_id" property="roleId"/>
+        <result column="role_name" property="roleName"/>
+        <result column="display_name" property="displayName"/>
+        <result column="description" property="description"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="deleted_at" property="deletedAt"/>
+        <result column="deleted" property="deleted"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="deleted_by" property="deletedBy"/>
+    </resultMap>
+
+    <!-- 根据用户 ID 查询角色列表 -->
+    <select id="selectRolesByUserId" resultMap="RoleResultMap">
+        SELECT r.*
+        FROM t_role r
+        INNER JOIN t_user_role ur ON r.role_id = ur.role_id
+        WHERE ur.user_id = #{userId}
+          AND r.deleted = 0
+          AND ur.deleted = 0
+    </select>
+
+    <!-- 根据角色 ID 查询用户 ID 列表 -->
+    <select id="selectUserIdsByRoleId" resultType="java.lang.String">
+        SELECT user_id
+        FROM t_user_role
+        WHERE role_id = #{roleId}
+          AND deleted = 0
+    </select>
+
+    <!-- 插入用户角色关联 -->
+    <insert id="insert">
+        INSERT INTO t_user_role (user_id, role_id, created_at, updated_at)
+        VALUES (#{userId}, #{roleId}, NOW(), NOW())
+        ON DUPLICATE KEY UPDATE updated_at = NOW()
+    </insert>
+
+    <!-- 根据用户 ID 删除角色关联 -->
+    <delete id="deleteByUserId">
+        UPDATE t_user_role
+        SET deleted = 1, deleted_at = NOW(), updated_at = NOW()
+        WHERE user_id = #{userId}
+          AND deleted = 0
+    </delete>
+
+    <!-- 根据角色 ID 删除用户关联 -->
+    <delete id="deleteByRoleId">
+        UPDATE t_user_role
+        SET deleted = 1, deleted_at = NOW(), updated_at = NOW()
+        WHERE role_id = #{roleId}
+          AND deleted = 0
+    </delete>
+
+    <!-- 批量插入用户角色关联 -->
+    <insert id="batchInsert">
+        INSERT INTO t_user_role (user_id, role_id, created_at, updated_at)
+        VALUES
+        <foreach collection="roleIds" item="roleId" separator=",">
+            (#{userId}, #{roleId}, NOW(), NOW())
+        </foreach>
+        ON DUPLICATE KEY UPDATE updated_at = NOW()
+    </insert>
+
+</mapper>

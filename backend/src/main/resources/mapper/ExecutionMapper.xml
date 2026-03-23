@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.testflowai.mapper.ExecutionMapper">
+
+    <resultMap id="BaseResultMap" type="com.testflowai.entity.Execution">
+        <id column="execution_id" property="executionId"/>
+        <result column="test_id" property="testId"/>
+        <result column="mode" property="mode"/>
+        <result column="status" property="status"/>
+        <result column="start_time" property="startTime"/>
+        <result column="end_time" property="endTime"/>
+        <result column="total_steps" property="totalSteps"/>
+        <result column="passed_steps" property="passedSteps"/>
+        <result column="failed_steps" property="failedSteps"/>
+        <result column="input" property="input"/>
+        <result column="output" property="output"/>
+        <result column="step_results" property="stepResults"/>
+        <result column="screenshots" property="screenshots"/>
+        <result column="loop_context" property="loopContext"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="deleted_at" property="deletedAt"/>
+        <result column="deleted" property="deleted"/>
+        <result column="created_by" property="createdBy"/>
+        <result column="updated_by" property="updatedBy"/>
+        <result column="deleted_by" property="deletedBy"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        execution_id, test_id, mode, status, start_time, end_time, total_steps,
+        passed_steps, failed_steps, input, output, step_results, screenshots,
+        loop_context, created_at, updated_at, deleted_at, deleted, created_by, updated_by, deleted_by
+    </sql>
+
+    <insert id="insert" parameterType="com.testflowai.entity.Execution">
+        INSERT INTO t_execution (
+            execution_id, test_id, mode, status, start_time, end_time,
+            total_steps, passed_steps, failed_steps, input, output,
+            step_results, screenshots, loop_context, created_by, updated_by
+        ) VALUES (
+            #{executionId}, #{testId}, #{mode}, #{status}, #{startTime}, #{endTime},
+            #{totalSteps}, #{passedSteps}, #{failedSteps}, #{input}, #{output},
+            #{stepResults}, #{screenshots}, #{loopContext}, #{createdBy}, #{updatedBy}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.testflowai.entity.Execution">
+        UPDATE t_execution
+        <set>
+            <if test="testId != null">test_id = #{testId},</if>
+            <if test="mode != null">mode = #{mode},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="totalSteps != null">total_steps = #{totalSteps},</if>
+            <if test="passedSteps != null">passed_steps = #{passedSteps},</if>
+            <if test="failedSteps != null">failed_steps = #{failedSteps},</if>
+            <if test="input != null">input = #{input},</if>
+            <if test="output != null">output = #{output},</if>
+            <if test="stepResults != null">step_results = #{stepResults},</if>
+            <if test="screenshots != null">screenshots = #{screenshots},</if>
+            <if test="loopContext != null">loop_context = #{loopContext},</if>
+            <if test="updatedBy != null">updated_by = #{updatedBy},</if>
+        </set>
+        WHERE execution_id = #{executionId} AND deleted = 0
+    </update>
+
+    <delete id="deleteById" parameterType="java.lang.String">
+        UPDATE t_execution SET deleted = 1, deleted_at = NOW(), deleted_by = #{deletedBy}
+        WHERE execution_id = #{executionId} AND deleted = 0
+    </delete>
+
+    <select id="getById" resultMap="BaseResultMap" parameterType="java.lang.String">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_execution
+        WHERE execution_id = #{executionId} AND deleted = 0
+    </select>
+
+    <select id="getByTestId" resultMap="BaseResultMap" parameterType="java.lang.String">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_execution
+        WHERE test_id = #{testId} AND deleted = 0
+        ORDER BY start_time DESC
+    </select>
+
+    <select id="list" resultMap="BaseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_execution
+        WHERE deleted = 0
+        ORDER BY start_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(*) FROM t_execution WHERE deleted = 0
+    </select>
+
+    <select id="getByStatus" resultMap="BaseResultMap" parameterType="java.lang.String">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_execution
+        WHERE status = #{status} AND deleted = 0
+        ORDER BY start_time DESC
+    </select>
+
+    <update id="updateStatus">
+        UPDATE t_execution
+        SET status = #{status}, updated_at = NOW()
+        WHERE execution_id = #{executionId} AND deleted = 0
+    </update>
+
+    <select id="countByStatus" resultType="com.testflowai.mapper.ExecutionMapper$ExecutionStatusCount">
+        SELECT status, COUNT(*) as count
+        FROM t_execution
+        WHERE deleted = 0
+        GROUP BY status
+    </select>
+
+    <select id="getRecentExecutions" resultMap="BaseResultMap" parameterType="int">
+        SELECT <include refid="Base_Column_List"/>
+        FROM t_execution
+        WHERE deleted = 0
+        ORDER BY start_time DESC
+        LIMIT #{limit}
+    </select>
+
+</mapper>

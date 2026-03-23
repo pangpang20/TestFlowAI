@@ -1,0 +1,66 @@
+/* TestFlowAI Recorder - Content Styles */
+
+/* 录制指示器样式 */
+#testflowai-recorder-indicator {
+  all: initial;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+#testflowai-recorder-indicator * {
+  all: initial;
+  box-sizing: border-box;
+}
+
+/* 高亮被点击的元素 */
+.testflowai-highlight {
+  outline: 3px solid #667eea !important;
+  outline-offset: 2px !important;
+  background-color: rgba(102, 126, 234, 0.1) !important;
+  transition: outline 0.2s, background-color 0.2s !important;
+}
+
+.testflowai-highlight.testflowai-click {
+  animation: testflowai-click-animation 0.3s ease-out;
+}
+
+@keyframes testflowai-click-animation {
+  0% {
+    box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+  }
+  100% {
+    box-shadow: 0 0 0 20px rgba(102, 126, 234, 0);
+  }
+}
+
+/* 输入元素高亮 */
+.testflowai-input-focus {
+  outline: 3px solid #f59e0b !important;
+  outline-offset: 2px !important;
+  background-color: rgba(245, 158, 11, 0.1) !important;
+}
+
+/* 滚动提示 */
+.testflowai-scroll-indicator {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 999998;
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border-radius: 20px;
+  font-size: 12px;
+  pointer-events: none;
+  animation: fadeOut 2s forwards;
+  animation-delay: 1s;
+}
+
+@keyframes fadeOut {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* 禁用页面过渡动画以免影响录制 */
+.testflowai-no-transition {
+  transition: none !important;
+}

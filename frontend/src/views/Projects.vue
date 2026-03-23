@@ -161,6 +161,22 @@ const formRules: FormRules = {
   ],
   owner: [
     { required: true, message: '请输入负责人', trigger: 'blur' }
+  ],
+  startDate: [
+    { required: false, message: '请选择开始日期', trigger: 'change' }
+  ],
+  endDate: [
+    { required: false, message: '请选择结束日期', trigger: 'change' },
+    {
+      validator: (rule, value, callback) => {
+        if (value && formData.startDate && new Date(value) <= new Date(formData.startDate)) {
+          callback(new Error('结束日期必须晚于开始日期'))
+        } else {
+          callback()
+        }
+      },
+      trigger: 'change'
+    }
   ]
 }
 

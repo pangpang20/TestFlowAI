@@ -259,6 +259,32 @@ CREATE TABLE IF NOT EXISTS t_report (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='测试报告表';
 
 -- ============================================
+-- 4. 定时任务表
+-- ============================================
+
+-- 定时任务表
+CREATE TABLE IF NOT EXISTS t_scheduled_task (
+    task_id VARCHAR(36) PRIMARY KEY COMMENT '任务 ID（UUID）',
+    task_name VARCHAR(100) NOT NULL COMMENT '任务名称',
+    test_id VARCHAR(100) NOT NULL COMMENT '测试流 ID',
+    title VARCHAR(200) COMMENT '任务标题',
+    description VARCHAR(500) COMMENT '任务描述',
+    cron_expression VARCHAR(50) NOT NULL COMMENT 'Cron 表达式',
+    status VARCHAR(20) NOT NULL DEFAULT 'active' COMMENT '状态（active/inactive）',
+    last_executed_at TIMESTAMP NULL COMMENT '上次执行时间',
+    next_execution_at TIMESTAMP NULL COMMENT '下次执行时间',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+    deleted_at TIMESTAMP NULL COMMENT '删除时间',
+    deleted TINYINT NOT NULL DEFAULT 0 COMMENT '软删除标记（1-删除，0-未删除）',
+    created_by VARCHAR(36) COMMENT '创建者',
+    updated_by VARCHAR(36) COMMENT '更新者',
+    deleted_by VARCHAR(36) COMMENT '删除者',
+    INDEX idx_task_status (status),
+    INDEX idx_task_next_exec (next_execution_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='定时任务表';
+
+-- ============================================
 -- 5. 初始化数据
 -- ============================================
 
