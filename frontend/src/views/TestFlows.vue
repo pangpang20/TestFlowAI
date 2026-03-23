@@ -68,7 +68,7 @@
           <el-input v-model="formData.version" placeholder="例如：1.0.0" />
         </el-form-item>
         <el-form-item label="应用 URL" prop="appUrl">
-          <el-input v-model="formData.appUrl" placeholder="请输入被测试应用的 URL" />
+          <el-input v-model="formData.appUrl" placeholder="例如：http://localhost:3000" />
         </el-form-item>
         <el-form-item label="标签" prop="tags">
           <el-input v-model="tagsInput" placeholder="请输入标签，用逗号分隔" />
@@ -78,7 +78,7 @@
             v-model="formData.steps"
             type="textarea"
             :rows="8"
-            placeholder="请输入测试步骤 JSON"
+            placeholder='请输入测试步骤 JSON 数组，例如：[{"type":"click","selector":"#btn","description":"点击按钮"}]'
           />
         </el-form-item>
         <el-form-item label="变量定义" prop="variables">
@@ -86,7 +86,7 @@
             v-model="formData.variables"
             type="textarea"
             :rows="4"
-            placeholder="请输入变量定义 JSON"
+            placeholder='请输入变量定义 JSON 对象，例如：{"username":"test","password":"123456"}'
           />
         </el-form-item>
         <el-form-item label="预期报告" prop="expectedReport">
@@ -94,7 +94,7 @@
             v-model="formData.expectedReport"
             type="textarea"
             :rows="4"
-            placeholder="请输入预期报告 JSON"
+            placeholder='请输入预期报告 JSON 对象，例如：{"status":"passed","totalSteps":10}'
           />
         </el-form-item>
       </el-form>
@@ -147,12 +147,51 @@ const formData = reactive<TestFlowDto>({
   updatedAt: ''
 })
 
+// 自定义验证规则
+const validateJson = (rule: any, value: string, callback: (error?: string | Error) => void) => {
+  if (!value) {
+    callback() // 空值允许通过（字段可选）
+    return
+  }
+  try {
+    JSON.parse(value)
+    callback()
+  } catch (e) {
+    callback(new Error('请输入有效的 JSON 格式'))
+  }
+}
+
+const validateHttpUrl = (rule: any, value: string, callback: (error?: string | Error) => void) => {
+  if (!value) {
+    callback() // 空值允许通过（字段可选）
+    return
+  }
+  const urlPattern = /^https?:\/\/.+$/
+  if (urlPattern.test(value)) {
+    callback()
+  } else {
+    callback(new Error('请输入有效的 HTTP/HTTPS URL'))
+  }
+}
+
 const formRules: FormRules = {
   title: [
     { required: true, message: '请输入测试流名称', trigger: 'blur' }
   ],
   version: [
     { required: true, message: '请输入版本号', trigger: 'blur' }
+  ],
+  appUrl: [
+    { validator: validateHttpUrl, trigger: 'blur' }
+  ],
+  steps: [
+    { validator: validateJson, trigger: 'blur' }
+  ],
+  variables: [
+    { validator: validateJson, trigger: 'blur' }
+  ],
+  expectedReport: [
+    { validator: validateJson, trigger: 'blur' }
   ]
 }
 
