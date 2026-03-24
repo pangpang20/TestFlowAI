@@ -286,9 +286,9 @@ const handleMenuSelect = (index: string) => {
 // 用户头像下拉菜单处理
 const handleCommand = async (command: string) => {
   if (command === 'logout') {
-    userStore.logout()
-    router.push('/login')
+    await userStore.logout()
     ElMessage.success('已退出登录')
+    router.replace('/login')
   } else if (command === 'password') {
     showPasswordDialog()
   } else if (command === 'avatar') {

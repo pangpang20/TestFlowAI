@@ -80,14 +80,14 @@ router.beforeEach((to, from, next) => {
 
   // 需要登录的页面
   if (to.meta.requiresAuth) {
-    if (!isLoggedIn) {
+    if (!isLoggedIn.value) {
       next({ name: 'Login', query: { redirect: to.fullPath } })
     } else {
       next()
     }
   } else {
     // 已登录用户访问登录页面，重定向到首页
-    if (to.name === 'Login' && isLoggedIn) {
+    if (to.name === 'Login' && isLoggedIn.value) {
       next({ name: 'Dashboard' })
     } else {
       next()

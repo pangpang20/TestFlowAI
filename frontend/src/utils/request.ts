@@ -48,8 +48,12 @@ service.interceptors.response.use(
 
       if (status === 401) {
         const userStore = useUserStore()
-        userStore.logout()
+        userStore.reset()
         ElMessage.error('登录已过期，请重新登录')
+        // 延迟跳转到登录页
+        setTimeout(() => {
+          window.location.href = '/login'
+        }, 500)
       } else if (status === 403) {
         ElMessage.error('没有权限访问该资源')
       } else if (status === 404) {
