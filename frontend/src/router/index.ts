@@ -75,21 +75,29 @@ router.beforeEach((to, from, next) => {
   const userStore = useUserStore()
   const isLoggedIn = userStore.isLoggedIn
 
+  console.log('[Router Guard] 从:', from.path, '到:', to.path)
+  console.log('[Router Guard] isLoggedIn:', isLoggedIn)
+  console.log('[Router Guard] token:', userStore.token)
+
   // 设置页面标题
   document.title = `${to.meta.title || '首页'} - TestFlowAI`
 
   // 需要登录的页面
   if (to.meta.requiresAuth) {
-    if (!isLoggedIn.value) {
+    if (!isLoggedIn) {
+      console.log('[Router Guard] 未登录，重定向到登录页')
       next({ name: 'Login', query: { redirect: to.fullPath } })
     } else {
+      console.log('[Router Guard] 已登录，允许访问')
       next()
     }
   } else {
     // 已登录用户访问登录页面，重定向到首页
-    if (to.name === 'Login' && isLoggedIn.value) {
+    if (to.name === 'Login' && isLoggedIn) {
+      console.log('[Router Guard] 已登录访问登录页，重定向到首页')
       next({ name: 'Dashboard' })
     } else {
+      console.log('[Router Guard] 允许访问登录页')
       next()
     }
   }

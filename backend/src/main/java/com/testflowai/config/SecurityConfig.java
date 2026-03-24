@@ -98,6 +98,8 @@ public class SecurityConfig {
                 // 放行统计接口 (带和不带/api 前缀的都要放行)
                 .requestMatchers("/api/stats/**").permitAll()
                 .requestMatchers("/stats/**").permitAll()
+                // 放行用户信息接口（登录成功后需要访问）
+                .requestMatchers("/api/users/info").permitAll()
                 // 其他请求需要认证
                 .anyRequest().authenticated()
             )

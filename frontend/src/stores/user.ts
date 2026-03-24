@@ -22,11 +22,16 @@ export const useUserStore = defineStore('user', () => {
   async function login(username: string, password: string) {
     try {
       const res = await loginApi(username, password)
-      // 后端返回格式：{ code, message, data: { token }, timestamp }
-      token.value = res.data?.token || res.token
+      // 后端返回格式：{ code, message, data: { token, user }, timestamp }
+      const tokenValue = res.data?.token || res.token
+      if (!tokenValue) {
+        throw new Error('Token not found in response')
+      }
+      token.value = tokenValue
       await getUserInfo()
       return res
     } catch (error) {
+      console.error('Login error:', error)
       throw error
     }
   }

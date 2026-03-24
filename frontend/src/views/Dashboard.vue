@@ -331,8 +331,9 @@ const handleChangePassword = async () => {
     await changePasswordApi(passwordForm.value.oldPassword, passwordForm.value.newPassword)
     ElMessage.success('密码修改成功，请重新登录')
     passwordDialogVisible.value = false
-    userStore.logout()
-    router.push('/login')
+    await userStore.logout()
+    console.log('[ChangePassword] 已登出，准备跳转到登录页')
+    router.replace('/login')
   } catch (error: any) {
     ElMessage.error(error.message || '密码修改失败')
   }

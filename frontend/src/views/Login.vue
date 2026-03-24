@@ -91,13 +91,17 @@ const handleLogin = async () => {
       loading.value = true
       try {
         await userStore.login(loginForm.username, loginForm.password)
+        console.log('[Login] 登录成功，token:', userStore.token)
+        console.log('[Login] isLoggedIn:', userStore.isLoggedIn)
         ElMessage.success('登录成功')
 
         // 跳转到之前访问的页面或首页
         const redirect = route.query.redirect as string
+        console.log('[Login] 准备跳转到:', redirect || '/')
         router.push(redirect || '/')
-      } catch (error) {
+      } catch (error: any) {
         console.error('Login failed:', error)
+        ElMessage.error(error.message || '登录失败')
       } finally {
         loading.value = false
       }
